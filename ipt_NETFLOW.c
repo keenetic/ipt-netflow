@@ -51,6 +51,16 @@
 #include <net/dst.h>
 #include <linux/netfilter_ipv4/ip_tables.h>
 #include <linux/netfilter_bridge.h>
+
+#if IS_ENABLED(CONFIG_RA_HW_NAT)
+#include <../ndm/hw_nat/ra_nat.h>
+#endif
+#if IS_ENABLED(CONFIG_FAST_NAT)
+#include <net/fast_vpn.h>
+#include <net/netfilter/nf_conntrack.h>
+#include <linux/netfilter/nf_conntrack_common.h>
+#endif
+
 #ifndef ENABLE_NAT
 # undef CONFIG_NF_NAT_NEEDED
 #endif
@@ -4988,6 +4998,21 @@ static unsigned int netflow_target(
 	int options = 0;
 	int tcpoptions = 0;
 	struct stripe_entry *stripe;
+#if IS_ENABLED(CONFIG_FAST_NAT)
+	struct nf_conn *ct;
+	enum ip_conntrack_info ctinfo;
+#endif
+
+	if (unlikely( 0
+#if IS_ENABLED(CONFIG_FAST_NAT)
+		|| SWNAT_KA_CHECK_MARK(skb)
+#endif
+#if IS_ENABLED(CONFIG_RA_HW_NAT)
+		|| FOE_SKB_IS_KEEPALIVE(skb)
+#endif
+	)) {
+		return IPT_CONTINUE;
+	}
 
 	if (unlikely(
 #ifdef ENABLE_L2
@@ -5385,6 +5410,18 @@ do_protocols:
 		else
 			list_move(&nf->flows_list, &stripe->list);
 	}
+
+#if IS_ENABLED(CONFIG_RA_HW_NAT)
+	FOE_ALG_SKIP(skb);
+#endif
+
+#if IS_ENABLED(CONFIG_FAST_NAT)
+	ct = nf_ct_get(skb, &ctinfo);
+
+	if (ct != NULL) {
+		ct->fast_ext = 1;
+	}
+#endif
 
 unlock_return:
 	spin_unlock(&stripe->lock);
