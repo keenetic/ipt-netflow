@@ -100,6 +100,41 @@ MODULE_DESCRIPTION("iptables NETFLOW target module");
 MODULE_VERSION(IPT_NETFLOW_VERSION);
 MODULE_ALIAS("ip6t_NETFLOW");
 
+/* NDM device-specific parameters */
+
+#if defined(NTFLW_NDM_HASH_SIZE)
+#undef NTFLW_NDM_HASH_SIZE
+#endif /* defined(NTFLW_NDM_HASH_SIZE) */
+#if defined(NTFLW_NDM_MAX_FLOWS)
+#undef NTFLW_NDM_MAX_FLOWS
+#endif /* defined(NTFLW_NDM_MAX_FLOWS) */
+
+#ifdef CONFIG_RALINK_MT7620
+	#define NTFLW_NDM_HASH_SIZE			65536
+	#define NTFLW_NDM_MAX_FLOWS			32768
+#endif /* CONFIG_RALINK_MT7620 */
+
+#ifdef CONFIG_RALINK_MT7621
+	#define NTFLW_NDM_HASH_SIZE			131072
+	#define NTFLW_NDM_MAX_FLOWS			131072
+#endif /* CONFIG_RALINK_MT7621 */
+
+#if defined(CONFIG_MIPS_RT63365) || defined(CONFIG_RALINK_RT63365) || defined(CONFIG_RALINK_RT6855A)
+	#define NTFLW_NDM_HASH_SIZE			131072
+	#define NTFLW_NDM_MAX_FLOWS			65536
+#endif /* CONFIG_MIPS_RT63365 */
+
+#ifdef CONFIG_RALINK_MT7628
+	#define NTFLW_NDM_HASH_SIZE			32768
+	#define NTFLW_NDM_MAX_FLOWS			32768
+#endif /* CONFIG_RALINK_MT7628 */
+
+#if !defined(NTFLW_NDM_HASH_SIZE)
+	/* Safe default values */
+	#define NTFLW_NDM_HASH_SIZE			32768
+	#define NTFLW_NDM_MAX_FLOWS			32768
+#endif /* defined(NTFLW_NDM_HASH_SIZE) */
+
 static char version_string[128];
 static int  version_string_size;
 static struct duration start_ts; /* ts of module start (ktime) */
@@ -179,8 +214,8 @@ module_param(timeout_rate, uint, 0644);
 MODULE_PARM_DESC(timeout_rate, "NetFlow v9/IPFIX timeout rate (minutes)");
 
 static int one = 1;
-static unsigned int scan_min = 1;
-static unsigned int scan_max = HZ / 10;
+static unsigned int scan_min = 50;
+static unsigned int scan_max = HZ / 2;
 module_param(scan_min, uint, 0644);
 MODULE_PARM_DESC(scan_min, "Minimal interval between export scans (jiffies)");
 
@@ -199,11 +234,11 @@ module_param(natevents, int, 0444);
 MODULE_PARM_DESC(natevents, "enable NAT Events");
 #endif
 
-static int hashsize;
+static int hashsize = NTFLW_NDM_HASH_SIZE;
 module_param(hashsize, int, 0444);
 MODULE_PARM_DESC(hashsize, "hash table size");
 
-static int maxflows = 2000000;
+static int maxflows = NTFLW_NDM_MAX_FLOWS;
 module_param(maxflows, int, 0644);
 MODULE_PARM_DESC(maxflows, "maximum number of flows");
 static int peakflows = 0;
