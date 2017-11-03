@@ -111,7 +111,7 @@ static int  version_string_size;
 static struct duration start_ts; /* ts of module start (ktime) */
 
 #define DST_SIZE 256
-static char destination_buf[DST_SIZE] = "127.0.0.1:2055";
+static char destination_buf[DST_SIZE] = "127.0.0.1:0";
 static char *destination = destination_buf;
 module_param(destination, charp, 0444);
 MODULE_PARM_DESC(destination, "export destination ipaddress:port");
@@ -5518,7 +5518,7 @@ static int register_stat(const char *name, struct file_operations *fops)
 {
 	struct proc_dir_entry *proc_stat;
 
-	printk(KERN_INFO "netflow: registering: /proc/net/stat/%s\n", name);
+/*	printk(KERN_DEBUG "netflow: registering: /proc/net/stat/%s\n", name); */
 
 # if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 	proc_stat = create_proc_entry(name, S_IRUGO, INIT_NET(proc_net_stat));
@@ -5535,7 +5535,7 @@ static int register_stat(const char *name, struct file_operations *fops)
 # if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
 	proc_stat->owner = THIS_MODULE;
 # endif
-	printk(KERN_INFO "netflow: registered: /proc/net/stat/%s\n", name);
+/*	printk(KERN_DEBUG "netflow: registered: /proc/net/stat/%s\n", name); */
 	return 1;
 }
 #else
@@ -5567,7 +5567,7 @@ static int __init ipt_netflow_init(void)
 	if (hashsize < LOCK_COUNT)
 		hashsize = LOCK_COUNT;
 	printk(KERN_INFO "ipt_NETFLOW: hashsize %u (%luK)\n", hashsize,
-		hashsize * sizeof(struct hlist_head) / 1024);
+		(long unsigned int)(hashsize * sizeof(struct hlist_head) / 1024));
 
 	htable_size = hashsize;
 	htable = alloc_hashtable(htable_size);
@@ -5623,7 +5623,7 @@ static int __init ipt_netflow_init(void)
 		printk(KERN_ERR "netflow: can't register to sysctl\n");
 		goto err_free_proc_stat3;
 	} else
-		printk(KERN_INFO "netflow: registered: sysctl net.netflow\n");
+		printk(KERN_DEBUG "netflow: registered: sysctl net.netflow\n");
 #endif
 
 	if (!destination)
@@ -5691,7 +5691,7 @@ static int __init ipt_netflow_init(void)
 		register_ct_events();
 #endif
 
-	printk(KERN_INFO "ipt_NETFLOW is loaded.\n");
+	printk(KERN_INFO "ipt_NETFLOW is loaded\n");
 	return 0;
 
 err_stop_timer:
@@ -5727,7 +5727,7 @@ err:
 
 static void __exit ipt_netflow_fini(void)
 {
-	printk(KERN_INFO "ipt_NETFLOW unloading..\n");
+	printk(KERN_DEBUG "ipt_NETFLOW unloading..\n");
 
 #ifdef CONFIG_SYSCTL
 	unregister_sysctl_table(netflow_sysctl_header);
@@ -5768,7 +5768,7 @@ static void __exit ipt_netflow_fini(void)
 	kmem_cache_destroy(ipt_netflow_cachep);
 	vfree(htable);
 
-	printk(KERN_INFO "ipt_NETFLOW unloaded.\n");
+	printk(KERN_INFO "ipt_NETFLOW unloaded\n");
 }
 
 module_init(ipt_netflow_init);
