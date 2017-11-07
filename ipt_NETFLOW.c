@@ -5533,7 +5533,7 @@ static int register_stat(const char *name, struct file_operations *fops)
 {
 	struct proc_dir_entry *proc_stat;
 
-	printk(KERN_DEBUG "netflow: registering: /proc/net/stat/%s\n", name);
+/*	printk(KERN_DEBUG "netflow: registering: /proc/net/stat/%s\n", name); */
 
 # if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 	proc_stat = create_proc_entry(name, S_IRUGO, INIT_NET(proc_net_stat));
@@ -5550,7 +5550,7 @@ static int register_stat(const char *name, struct file_operations *fops)
 # if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
 	proc_stat->owner = THIS_MODULE;
 # endif
-	printk(KERN_DEBUG "netflow: registered: /proc/net/stat/%s\n", name);
+/*	printk(KERN_DEBUG "netflow: registered: /proc/net/stat/%s\n", name); */
 	return 1;
 }
 #else
