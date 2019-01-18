@@ -51,11 +51,11 @@
 #include <net/dst.h>
 #include <linux/netfilter_ipv4/ip_tables.h>
 
-#include <net/fast_vpn.h>
 #if IS_ENABLED(CONFIG_RA_HW_NAT)
 #include <../ndm/hw_nat/ra_nat.h>
 #endif
 #if IS_ENABLED(CONFIG_FAST_NAT)
+#include <net/fast_vpn.h>
 #include <net/netfilter/nf_conntrack.h>
 #include <linux/netfilter/nf_conntrack_common.h>
 #endif
