@@ -59,12 +59,15 @@
 #include <net/netfilter/nf_conntrack.h>
 #include <linux/netfilter/nf_conntrack_common.h>
 #endif
-
+#include <linux/version.h>
 #ifndef ENABLE_NAT
 # undef CONFIG_NF_NAT_NEEDED
 #endif
 #if defined(ENABLE_VLAN) || defined(ENABLE_PROMISC)
 # include <linux/if_vlan.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,13,0)
+# include <net/8021q/vlan.h>
+#endif
 #endif
 #ifdef ENABLE_MAC
 # include <linux/if_ether.h>
@@ -75,7 +78,6 @@
 # include <net/netfilter/nf_conntrack.h>
 # include <net/netfilter/nf_conntrack_core.h>
 #endif
-#include <linux/version.h>
 #include <asm/unaligned.h>
 #ifdef HAVE_LLIST
 	/* llist.h is officially defined since linux 3.1,
