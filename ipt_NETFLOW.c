@@ -4703,10 +4703,6 @@ netflow_target_check(const struct xt_tgchk_param *par)
 		printk(KERN_ERR "%s target: is not valid in %s table\n", target->name, tablename);
 		return CHECK_FAIL;
 	}
-	if (target->family == AF_INET6 && protocol == 5) {
-		printk(KERN_ERR "ip6tables NETFLOW target is meaningful for protocol 9 or 10 only.\n");
-		return CHECK_FAIL;
-	}
 	return CHECK_OK;
 }
 
